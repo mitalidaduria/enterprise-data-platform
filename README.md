@@ -63,3 +63,26 @@ enterprise-data-platform/
 │   └── customer_model.joblib
 └── README.md               # Master Repository Documentation
 ```
+##  Key Features & Architectural Highlights
+* **Distributed PySpark Ingestion:** Ingests and transforms multi-source operational records using distributed PySpark DataFrames.
+* **Cryptographic PII Governance:** Enforces SHA-256 cryptographic hashing (`sha2`) on sensitive identifiers (emails) prior to persistence, adhering to compliance policies.
+* **Automated Quality Quarantine:** Evaluates schema assertions (PK uniqueness, string length domain bounds) and routes corrupted data into isolated quarantine storage.
+* **MDM & Entity Resolution:** Executes deterministic matching on identity anchors (`email_hash`) and applies system-trust Survivorship Rules to create an authoritative Golden Record.
+* **Low-Latency REST Gateway:** Serves customer profiles and features via a FastAPI service with automated OpenAPI/Swagger interactive documentation.
+* **Real-Time ML Decisioning:** Features an in-memory Scikit-Learn Random Forest model that evaluates customer feature vectors and returns instant prediction probabilities.
+* **Autonomous Action Agent:** Consumes API routes to automate downstream business workflows (e.g., loyalty webhooks) based on model decision outputs.
+
+---
+
+##  Quickstart Guide (Local Setup & Execution)
+
+### 1. Environment Setup
+```bash
+# Clone the repository
+git clone [https://github.com/mitalidaduria/enterprise-data-platform.git](https://github.com/mitalidaduria/enterprise-data-platform.git)
+cd enterprise-data-platform
+
+# Create virtual environment & install dependencies
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install pyspark fastapi uvicorn scikit-learn joblib pandas requests
