@@ -50,17 +50,10 @@ enterprise-data-platform/
 │   ├── load_db.py
 │   └── enterprise_data.db
 ├── pipelines/              # PySpark ETL, Quality Gates, MDM, & Orchestration
-│   ├── generate_data.py
-│   ├── ingest_pyspark.py
-│   ├── data_quality.py
-│   ├── entity_resolution.py
-│   └── orchestrator.py
 ├── gateway/                # REST API Service & Autonomous AI Agent
 │   ├── app.py
 │   └── agent_action.py
 ├── models/                 # Feature Engineering & ML Model Training
-│   ├── train_model.py
-│   └── customer_model.joblib
 └── README.md               # Master Repository Documentation
 ```
 ##  Key Features & Architectural Highlights
