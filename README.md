@@ -1,4 +1,4 @@
-# 🏛️ Enterprise Data Platform: MDM, Governance & Real-Time ML Gateway
+#  Enterprise Data Platform: MDM, Governance & Real-Time ML Gateway
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![PySpark](https://img.shields.io/badge/PySpark-3.5-orange.svg)](https://spark.apache.org/)
@@ -9,7 +9,7 @@ An enterprise-grade, end-to-end data architecture platform that ingests multi-so
 
 ---
 
-## 📌 Executive Architecture Blueprint
+##  Executive Architecture Blueprint
 
 ```mermaid
 flowchart TD
