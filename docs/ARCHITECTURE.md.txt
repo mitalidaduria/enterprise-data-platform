@@ -1,0 +1,15 @@
+# Enterprise Data Platform - System Architecture Blueprint
+
+## 1. System Overview
+This platform ingests multi-source transactional data, resolves customer identities into an authoritative Master Data Management (MDM) Golden Record, and serves real-time machine learning decisions via a REST API.
+
+## 2. End-to-End Data Flow
+- **Sources:** Operational databases (Billing, Shipping, Support logs) capturing raw user activities.
+- **Pipeline Layer (`/pipelines`):** Distributed ETL processing using PySpark to ingest and clean high-volume data streams.
+- **MDM & Storage (`/infrastructure`):** Relational storage implementing Entity Resolution and Survivorship rules to produce a single source of truth (Golden Record).
+- **ML & Feature Store (`/models`):** Feature engineering pipelines and model training artifacts.
+- **Serving Layer (`/gateway`):** FastAPI REST endpoints delivering real-time predictions to downstream clients.
+
+## 3. Core Architectural Principles
+- **Decoupling:** Raw ingestion is strictly separated from model training and API serving.
+- **Data Quality Gates:** Automated checks prevent corrupt or invalid data from hitting production storage.

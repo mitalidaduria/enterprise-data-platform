@@ -1,0 +1,68 @@
+-- ===============================================================================
+-- Enterprise Data Platform: Relational Database Schema Initialization (DDL)
+-- Architecture: Master Data Management (MDM) & Entity Resolution Layer
+-- ===============================================================================
+
+-- Drop existing tables to allow clean re-initialization
+DROP TABLE IF EXISTS dim_customer_golden CASCADE;
+DROP TABLE IF EXISTS stg_billing CASCADE;
+DROP TABLE IF EXISTS stg_shipping CASCADE;
+
+-- -------------------------------------------------------------------------------
+-- 1. STAGING TABLE: Billing Operational Database
+-- -------------------------------------------------------------------------------
+CREATE TABLE stg_billing (
+    billing_id          VARCHAR(64)   PRIMARY KEY,
+    full_name           VARCHAR(255)  NOT NULL,
+    email               VARCHAR(255)  NOT NULL,
+    email_hash          VARCHAR(64)   NOT NULL, -- SHA-256 PII Hashed
+    credit_card_hash    VARCHAR(64)   NOT NULL,
+    billing_address     TEXT          NOT NULL,
+    src_system_id       VARCHAR(32)   DEFAULT 'BILLING_DB',
+    ingested_at         TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMP     DEFAULT CURRENT_TIMESTAMP
+);
+
+-- -------------------------------------------------------------------------------
+-- 2. STAGING TABLE: Shipping Operational Database
+-- -------------------------------------------------------------------------------
+CREATE TABLE stg_shipping (
+    shipping_id         VARCHAR(64)   PRIMARY KEY,
+    recipient_name      VARCHAR(255)  NOT NULL,
+    email_hash          VARCHAR(64)   NOT NULL, -- SHA-256 PII Hashed
+    street_address      TEXT          NOT NULL,
+    phone_number        VARCHAR(32)   NOT NULL,
+    src_system_id       VARCHAR(32)   DEFAULT 'SHIPPING_DB',
+    ingested_at         TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMP     DEFAULT CURRENT_TIMESTAMP
+);
+
+-- -------------------------------------------------------------------------------
+-- 3. MASTER TARGET TABLE: Customer Golden Record (MDM)
+-- -------------------------------------------------------------------------------
+CREATE TABLE dim_customer_golden (
+    golden_customer_id      VARCHAR(64)   PRIMARY KEY,
+    primary_name            VARCHAR(255)  NOT NULL,
+    primary_email_hash      VARCHAR(64)   NOT NULL UNIQUE,
+    primary_phone           VARCHAR(32),
+    primary_address         TEXT,
+    billing_linkage_id      VARCHAR(64),
+    shipping_linkage_id     VARCHAR(64),
+    total_source_linkages   INT           DEFAULT 1 CHECK (total_source_linkages >= 1),
+    created_at              TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+    updated_at              TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+    pipeline_version        VARCHAR(16)   DEFAULT 'v1.0.0',
+    
+    -- Foreign Key Lineage Tracking
+    CONSTRAINT fk_billing_source FOREIGN KEY (billing_linkage_id) REFERENCES stg_billing(billing_id) ON DELETE SET NULL,
+    CONSTRAINT fk_shipping_source FOREIGN KEY (shipping_linkage_id) REFERENCES stg_shipping(shipping_id) ON DELETE SET NULL
+);
+
+-- -------------------------------------------------------------------------------
+-- 4. PERFORMANCE INDEXING STRATEGY
+-- Optimized for millisecond Entity Resolution matching and API lookup routes
+-- -------------------------------------------------------------------------------
+CREATE INDEX idx_stg_billing_email_hash ON stg_billing(email_hash);
+CREATE INDEX idx_stg_shipping_email_hash ON stg_shipping(email_hash);
+CREATE INDEX idx_stg_shipping_phone ON stg_shipping(phone_number);
+CREATE INDEX idx_golden_email_hash ON dim_customer_golden(primary_email_hash);
